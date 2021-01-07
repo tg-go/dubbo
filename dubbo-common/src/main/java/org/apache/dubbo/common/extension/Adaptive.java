@@ -55,6 +55,17 @@ public @interface Adaptive {
      *
      * @return parameter names in URL
      */
+    /**
+     * 首先激活value指定的key1，key2等在url上的value，作为extension的激活名称
+     * 如果没有，则使用SPI注解上的默认值
+     * 如果没有，则按照接口的类名的点分作为key 。例如接口为MyName,则key为my.name
+     *
+     *
+     * Adaptive可以标记在类和方法上
+     * 标记在类上：直接表示这个类是自动激活的
+     * 标记在方法上，则表示这个方法调用时要根据key来指定
+     * @return
+     */
     String[] value() default {};
 
 }

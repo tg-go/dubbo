@@ -79,14 +79,24 @@ import static org.apache.dubbo.common.constants.CommonConstants.REMOVE_VALUE_PRE
  * @see org.apache.dubbo.common.extension.Adaptive
  * @see org.apache.dubbo.common.extension.Activate
  */
+
+/**
+ * 我们需要弄明白的一个点是一个ExtensionLoader其实是只对应一个Class的加载的
+ * @param <T>
+ */
 public class ExtensionLoader<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
 
+    /**
+     * 不同类的ExtensionLoader对象的缓存
+     */
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<>(64);
-
+    /**
+     * Class对象和实例的缓存
+     */
     private static final ConcurrentMap<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<>(64);
 
     private final Class<?> type;
@@ -96,14 +106,24 @@ public class ExtensionLoader<T> {
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<>();
 
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<>();
-
+    /**
+     * 这个类的Activate注解激活缓存
+     */
     private final Map<String, Object> cachedActivates = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<>();
     private final Holder<Object> cachedAdaptiveInstance = new Holder<>();
+    /**
+     * adaptive class的缓存
+     */
     private volatile Class<?> cachedAdaptiveClass = null;
+    /**
+     * SPI注解上默认的Class
+     */
     private String cachedDefaultName;
     private volatile Throwable createAdaptiveInstanceError;
-
+    /**
+     * 对这个Class包装的包装类缓存
+     */
     private Set<Class<?>> cachedWrapperClasses;
 
     private Map<String, IllegalStateException> exceptions = new ConcurrentHashMap<>();
@@ -751,6 +771,10 @@ public class ExtensionLoader<T> {
         return getExtensionClasses().get(name);
     }
 
+    /**
+     * 单例的Dubbo Check加载
+     * @return
+     */
     private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = cachedClasses.get();
         if (classes == null) {
@@ -766,15 +790,22 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 具体的加载类的逻辑
      * synchronized in getExtensionClasses
      */
     private Map<String, Class<?>> loadExtensionClasses() {
         cacheDefaultExtensionName();
 
+        /**
+         * 创建加载的Class的map
+         */
         Map<String, Class<?>> extensionClasses = new HashMap<>();
 
         for (LoadingStrategy strategy : strategies) {
             loadDirectory(extensionClasses, strategy.directory(), type.getName(), strategy.preferExtensionClassLoader(), strategy.overridden(), strategy.excludedPackages());
+            /**
+             * 处理alibaba包下的加载过程
+             */
             loadDirectory(extensionClasses, strategy.directory(), type.getName().replace("org.apache", "com.alibaba"), strategy.preferExtensionClassLoader(), strategy.overridden(), strategy.excludedPackages());
         }
 
@@ -782,6 +813,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 得到SPI注解上默认的Class
      * extract and cache default extension name if exists
      */
     private void cacheDefaultExtensionName() {
@@ -888,6 +920,15 @@ public class ExtensionLoader<T> {
         return false;
     }
 
+    /**
+     * 具体去加载Class的过程，前面已经对文件中的k-v格式进行分解了
+     * @param extensionClasses
+     * @param resourceURL
+     * @param clazz
+     * @param name
+     * @param overridden
+     * @throws NoSuchMethodException
+     */
     private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL resourceURL, Class<?> clazz, String name,
                            boolean overridden) throws NoSuchMethodException {
         if (!type.isAssignableFrom(clazz)) {
@@ -986,6 +1027,7 @@ public class ExtensionLoader<T> {
     }
 
     /**
+     * 测试是否是提供了这个class的构造方法
      * test if clazz is a wrapper class
      * <p>
      * which has Constructor with given class type as its only argument
@@ -1030,6 +1072,11 @@ public class ExtensionLoader<T> {
         return cachedAdaptiveClass = createAdaptiveExtensionClass();
     }
 
+    /**
+     * Adaptive自适应的类加载，主要是生成了代理类吧。
+     * 通过生成代码来实现的扩展形式
+     * @return
+     */
     private Class<?> createAdaptiveExtensionClass() {
         String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
         ClassLoader classLoader = findClassLoader();
