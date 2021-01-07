@@ -55,6 +55,17 @@ public interface ProxyFactory {
      * @param url
      * @return invoker
      */
+    /**
+     * proxy ：时间引用的实现类
+     * type：接口声明
+     * url：暴露的URL
+     * @param proxy
+     * @param type
+     * @param url
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Adaptive({PROXY_KEY})
     <T> Invoker<T> getInvoker(T proxy, Class<T> type, URL url) throws RpcException;
 

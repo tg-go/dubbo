@@ -277,6 +277,13 @@ public class DubboProtocol extends AbstractProtocol {
         return DEFAULT_PORT;
     }
 
+    /**
+     * 默认走Dubbo协议暴露
+     * @param invoker Service invoker
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         URL url = invoker.getUrl();
@@ -300,7 +307,13 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
 
+        /**
+         * 开启server
+         */
         openServer(url);
+        /**
+         * 优化序列化逻辑
+         */
         optimizeSerialization(url);
 
         return exporter;
@@ -308,10 +321,14 @@ public class DubboProtocol extends AbstractProtocol {
 
     private void openServer(URL url) {
         // find server.
+        // 这里得到的server地址可能是多个拼接起来的
         String key = url.getAddress();
         //client can export a service which's only for server to invoke
         boolean isServer = url.getParameter(IS_SERVER_KEY, true);
         if (isServer) {
+            /**
+             * 得到所有的server
+             */
             ProtocolServer server = serverMap.get(key);
             if (server == null) {
                 synchronized (this) {
