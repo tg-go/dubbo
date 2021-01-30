@@ -38,6 +38,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.INVOKER_LISTENER
 
 /**
  * ListenerProtocol
+ * 增加了ExporterListener的处理
  */
 @Activate(order = 200)
 public class ProtocolListenerWrapper implements Protocol {

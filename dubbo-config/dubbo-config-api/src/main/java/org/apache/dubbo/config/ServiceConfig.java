@@ -372,6 +372,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * @param registryURLs
      */
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
+
+        // 设置默认的协议名，默认是Dubbo协议
         String name = protocolConfig.getName();
         if (StringUtils.isEmpty(name)) {
             name = DUBBO;
@@ -383,7 +385,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         Map<String, String> map = new HashMap<String, String>();
         map.put(SIDE_KEY, PROVIDER_SIDE);
 
+        // 添加一些动态参数
         ServiceConfig.appendRuntimeParameters(map);
+        // 往Map中添加参数
         AbstractConfig.appendParameters(map, getMetrics());
         AbstractConfig.appendParameters(map, getApplication());
         AbstractConfig.appendParameters(map, getModule());
@@ -495,6 +499,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         //init serviceMetadata attachments
         serviceMetadata.getAttachments().putAll(map);
 
+        // 这里就处理完了所有的参数map
+
         // export service
         // 处理注册中心的ip地址，特别处理了multicast类型
         String host = findConfigedHosts(protocolConfig, registryURLs, map);
@@ -511,6 +517,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
         String scope = url.getParameter(SCOPE_KEY);
         // don't export when none is configured
+
+        // 进行服务暴露
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 
             // 没有特殊说明，则默认本地暴露
@@ -573,6 +581,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 }
             }
         }
+        // 服务暴露结束
         this.urls.add(url);
     }
 

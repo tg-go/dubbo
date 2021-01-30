@@ -20,7 +20,7 @@ package org.apache.dubbo.common.constants;
 public interface RegistryConstants {
 
     String REGISTRY_KEY = "registry";
-
+    // 注册中心
     String REGISTRY_PROTOCOL = "registry";
 
     String DYNAMIC_KEY = "dynamic";

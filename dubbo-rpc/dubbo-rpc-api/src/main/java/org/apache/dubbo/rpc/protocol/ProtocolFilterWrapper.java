@@ -37,6 +37,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.REFERENCE_FILTER
 import static org.apache.dubbo.common.constants.CommonConstants.SERVICE_FILTER_KEY;
 
 /**
+ * 增加了Filter的Invoker链
  * ListenerProtocol
  */
 @Activate(order = 100)

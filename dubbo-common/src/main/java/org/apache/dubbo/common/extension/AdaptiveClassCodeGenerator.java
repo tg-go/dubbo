@@ -153,11 +153,14 @@ public class AdaptiveClassCodeGenerator {
     }
 
     /**
+     * // 主要是这里，会根据设置的adaptive读取URL上的参数值，然后通过ExtensiveLoader来获取对应的extsion，然后调用方法进行
+     * 通过生成的class字节码，然后生成class对象，然后获取instance
      * generate method declaration
      */
     private String generateMethod(Method method) {
         String methodReturnType = method.getReturnType().getCanonicalName();
         String methodName = method.getName();
+
         String methodContent = generateMethodContent(method);
         String methodArgs = generateMethodArguments(method);
         String methodThrows = generateMethodThrows(method);
